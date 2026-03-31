@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programme Coaching</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --card: #161616;
+    --accent-masse: #e8ff47;
+    --accent-pdp: #ff6b35;
+    --accent: #e8ff47;
+    --text: #f0f0f0;
+    --muted: #666;
+    --border: #222;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── TABS NAV ── */
+  .tab-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #0a0a0aee;
+    backdrop-filter: blur(12px);
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 20px 24px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .tab-btn .tab-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.4;
+    transition: opacity 0.25s;
+  }
+
+  .tab-btn.active-masse {
+    color: var(--accent-masse);
+    border-bottom-color: var(--accent-masse);
+  }
+  .tab-btn.active-masse .tab-dot { opacity: 1; background: var(--accent-masse); }
+
+  .tab-btn.active-pdp {
+    color: var(--accent-pdp);
+    border-bottom-color: var(--accent-pdp);
+  }
+  .tab-btn.active-pdp .tab-dot { opacity: 1; background: var(--accent-pdp); }
+
+  .tab-btn:not(.active-masse):not(.active-pdp):hover { color: #888; }
+
+  /* ── PANELS ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeUp 0.4s ease both; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 80px 40px 60px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .hero.masse::before { content: 'MASSE'; color: transparent; -webkit-text-stroke: 1px #1e1e00; }
+  .hero.pdp::before   { content: 'BURN';  color: transparent; -webkit-text-stroke: 1px #2a1200; }
+
+  .hero::before {
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(120px, 20vw, 280px);
+    letter-spacing: -5px;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    margin-bottom: 28px;
+  }
+  .masse .hero-tag { color: var(--accent-masse); border: 1px solid var(--accent-masse); }
+  .pdp   .hero-tag { color: var(--accent-pdp);   border: 1px solid var(--accent-pdp); }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 9vw, 110px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+  }
+  .masse h1 span { color: var(--accent-masse); }
+  .pdp   h1 span { color: var(--accent-pdp); }
+
+  .hero-sub {
+    margin-top: 24px;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 48px;
+    flex-wrap: wrap;
+  }
+
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    line-height: 1;
+  }
+  .masse .stat-num { color: var(--accent-masse); }
+  .pdp   .stat-num { color: var(--accent-pdp); }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── CLIENTS badge (PDP) ── */
+  .clients-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .client-chip {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border: 1px solid #2a1200;
+    color: #884422;
+    border-radius: 20px;
+  }
+
+  /* ── SESSIONS GRID ── */
+  .sessions {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  .sessions.single { grid-template-columns: 1fr; max-width: 700px; }
+
+  @media (max-width: 768px) {
+    .sessions, .sessions.single { grid-template-columns: 1fr; padding: 40px 24px; }
+    .hero { padding: 60px 24px 40px; }
+    .tab-btn { font-size: 15px; padding: 16px 12px; }
+  }
+
+  /* ── SESSION CARD ── */
+  .session-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .session-card:hover { transform: translateY(-4px); border-color: #333; }
+
+  .session-header {
+    padding: 32px 32px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .session-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    line-height: 0.85;
+    color: #222;
+  }
+
+  .session-info { flex: 1; }
+
+  .session-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .session-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .session-warmup {
+    margin-top: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .warmup-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .masse .warmup-dot { background: var(--accent-masse); }
+  .pdp   .warmup-dot { background: var(--accent-pdp); }
+
+  /* ── EXERCISE LIST ── */
+  .exercise-list {
+    padding: 24px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .exercise-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #1a1a1a;
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+  .exercise-item:last-child { border-bottom: none; }
+
+  .masse .exercise-item:hover .exercise-name { color: var(--accent-masse); }
+  .masse .exercise-item:hover .muscle-badge  { border-color: var(--accent-masse); color: var(--accent-masse); }
+  .pdp   .exercise-item:hover .exercise-name { color: var(--accent-pdp); }
+  .pdp   .exercise-item:hover .muscle-badge  { border-color: var(--accent-pdp); color: var(--accent-pdp); }
+
+  .muscle-badge {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid #333;
+    color: var(--muted);
+    padding: 4px 8px;
+    border-radius: 1px;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    min-width: 90px;
+    text-align: center;
+  }
+
+  .exercise-name {
+    font-size: 15px;
+    font-weight: 400;
+    transition: color 0.2s ease;
+  }
+
+  .exercise-sets { text-align: right; }
+
+  .sets-main {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .masse .sets-main { color: var(--accent-masse); }
+  .pdp   .sets-main { color: var(--accent-pdp); }
+
+  .sets-rest {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .exercise-note {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    color: #444;
+    font-style: italic;
+    padding: 0 0 4px;
+    margin-top: -6px;
+  }
+
+  /* ── INCLINAISON TABLE (Séance 1 PDP) ── */
+  .incli-table {
+    margin: 0 32px 28px;
+    border: 1px solid #1e1e1e;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .incli-header {
+    display: grid;
+    grid-template-columns: 60px 80px 70px 90px;
+    padding: 10px 16px;
+    background: #111;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid #1e1e1e;
+  }
+
+  .incli-row {
+    display: grid;
+    grid-template-columns: 60px 80px 70px 90px;
+    padding: 9px 16px;
+    border-bottom: 1px solid #141414;
+    font-size: 13px;
+    align-items: center;
+    transition: background 0.15s;
+  }
+  .incli-row:last-child { border-bottom: none; }
+  .incli-row:hover { background: #1a1a1a; }
+
+  .incli-row .incli-time {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: var(--accent-pdp);
+  }
+
+  .incli-row .incli-incl {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: #f0f0f0;
+  }
+
+  .incli-row .incli-speed { color: var(--muted); font-size: 13px; }
+
+  /* ── BLOC FRACTIONNÉ ── */
+  .bloc-section {
+    margin: 0 32px 28px;
+  }
+
+  .bloc-title {
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .bloc-title::after { content: ''; flex: 1; height: 1px; background: #1e1e1e; }
+
+  .bloc-card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 2px;
+    padding: 20px 20px;
+    margin-bottom: 12px;
+  }
+
+  .bloc-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--accent-pdp);
+    margin-bottom: 10px;
+  }
+
+  .bloc-intervals {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .interval-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 14px;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    gap: 2px;
+  }
+
+  .interval-speed {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .interval-dur {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .bloc-note {
+    font-size: 11px;
+    color: #555;
+    font-style: italic;
+    margin-top: 8px;
+  }
+
+  .speed-options {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .speed-opt {
+    font-size: 11px;
+    padding: 3px 10px;
+    border: 1px solid #222;
+    color: #555;
+    border-radius: 1px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  footer .f-accent-masse { color: var(--accent-masse); }
+  footer .f-accent-pdp   { color: var(--accent-pdp); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- TAB NAV -->
+<nav class="tab-nav">
+  <button class="tab-btn active-masse" onclick="switchTab('masse', this)">
+    <span class="tab-dot"></span> Prise de Masse
+  </button>
+  <button class="tab-btn" onclick="switchTab('pdp', this)">
+    <span class="tab-dot"></span> Perte de Poids
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  ONGLET 1 — PRISE DE MASSE               -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel active" id="panel-masse">
+
+  <header class="hero masse">
+    <div class="hero-tag">Programme · Prise de masse</div>
+    <h1>BUILD<br><span>YOUR</span><br>BODY</h1>
+    <p class="hero-sub">Fessiers · Quadriceps · Force fonctionnelle</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">2</div><div class="stat-label">Séances</div></div>
+      <div class="stat"><div class="stat-num">8</div><div class="stat-label">Exercices</div></div>
+      <div class="stat"><div class="stat-num">4×</div><div class="stat-label">Séries max</div></div>
+      <div class="stat"><div class="stat-num">1'30</div><div class="stat-label">Repos type</div></div>
+    </div>
+  </header>
+
+  <main class="sessions masse">
+
+    <!-- S1 -->
+    <div class="session-card masse">
+      <div class="session-header">
+        <div class="session-num">01</div>
+        <div class="session-info">
+          <div class="session-label">Séance</div>
+          <div class="session-title">FESSIERS<br>& STEP</div>
+          <div class="session-warmup">
+            <div class="warmup-dot"></div>
+            <span>Échauffement — Tapis, pente 12, vitesse 5 · 5–10 min</span>
+          </div>
+        </div>
+      </div>
+      <div class="exercise-list masse">
+        <div class="exercise-item">
+          <div class="muscle-badge">Petit fessier</div>
+          <div class="exercise-name">Abduction</div>
+          <div class="exercise-sets"><div class="sets-main masse">3×12</div><div class="sets-rest">repos 1'30</div></div>
+        </div>
+        <div class="exercise-item">
+          <div class="muscle-badge">Moyen fessier</div>
+          <div class="exercise-name">Step Up</div>
+          <div class="exercise-sets"><div class="sets-main masse">4×10</div><div class="sets-rest">repos 1'30</div></div>
+        </div>
+        <div class="exercise-item">
+          <div class="muscle-badge">Grand fessier</div>
+          <div class="exercise-name">Fentes statiques</div>
+          <div class="exercise-sets"><div class="sets-main masse">4×10</div><div class="sets-rest">repos 1'30</div></div>
+        </div>
+        <div class="exercise-item">
+          <div class="muscle-badge">Petit fessier</div>
+          <div class="exercise-name">Kick Back</div>
+          <div class="exercise-sets"><div class="sets-main masse">3×12</div><div class="sets-rest">repos 1'30</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="session-card masse">
+      <div class="session-header">
+        <div class="session-num">02</div>
+        <div class="session-info">
+          <div class="session-label">Séance</div>
+          <div class="session-title">GRAND<br>FESSIER & QUAD</div>
+          <div class="session-warmup">
+            <div class="warmup-dot"></div>
+            <span>Escalier 4 min · vitesse 6/7 — puis 5 min échauffement</span>
+          </div>
+        </div>
+      </div>
+      <div class="exercise-list masse">
+        <div class="exercise-item">
+          <div class="muscle-badge">Grand fessier</div>
+          <div class="exercise-name">Hip Thrust</div>
+          <div class="exercise-sets"><div class="sets-main masse">4×10</div><div class="sets-rest">repos 1'20</div></div>
+        </div>
+        <div class="exercise-item">
+          <div class="muscle-badge">Grand fessier</div>
+          <div class="exercise-name">Leg Press</div>
+          <div class="exercise-sets"><div class="sets-main masse">4×10</div><div class="sets-rest">+10 start & stop</div></div>
+        </div>
+        <div class="exercise-item">
+          <div class="muscle-badge">Quadriceps</div>
+          <div class="exercise-name">Leg Extension</div>
+          <div class="exercise-sets"><div class="sets-main masse">4×10</div><div class="sets-rest">bloqué 9ᵉ rép.</div></div>
+          <div class="exercise-note">⚡ Maintenir la contraction bloquée à la 9ème répétition</div>
+        </div>
+        <div class="exercise-item">
+          <div class="muscle-badge">Quadriceps</div>
+          <div class="exercise-name">Kick Back</div>
+          <div class="exercise-sets"><div class="sets-main masse">3×12</div><div class="sets-rest">repos 1'30</div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div>Programme personnalisé · Prise de masse</div>
+    <div><span class="f-accent-masse">4</span> groupes musculaires ciblés</div>
+  </footer>
+
+</div><!-- /panel-masse -->
+
+
+<!-- ══════════════════════════════════════════ -->
+<!--  ONGLET 2 — PERTE DE POIDS (PDP)         -->
+<!-- ══════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-pdp">
+
+  <header class="hero pdp">
+    <div class="hero-tag">Programme · Perte de poids</div>
+    <h1>BURN<br><span>THE</span><br>FAT</h1>
+    <p class="hero-sub">Cardio · Fractionné · Circuit brûle-graisse</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">2</div><div class="stat-label">Séances</div></div>
+      <div class="stat"><div class="stat-num">35</div><div class="stat-label">Min séance 1</div></div>
+      <div class="stat"><div class="stat-num">18</div><div class="stat-label">Min fractionné</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Clientes</div></div>
+    </div>
+    <div class="clients-row">
+      <span class="client-chip">Fatima</span>
+      <span class="client-chip">Insaf</span>
+      <span class="client-chip">Anira</span>
+      <span class="client-chip">Houria</span>
+      <span class="client-chip">Kahina</span>
+    </div>
+  </header>
+
+  <main class="sessions pdp">
+
+    <!-- ── PDP SÉANCE 1 ── -->
+    <div class="session-card pdp">
+      <div class="session-header">
+        <div class="session-num">01</div>
+        <div class="session-info">
+          <div class="session-label">Séance</div>
+          <div class="session-title">CIRCUIT<br>BRÛLE-GRAISSE</div>
+          <div class="session-warmup">
+            <div class="warmup-dot"></div>
+            <span>Échauffement — Indiraison (tapis), vitesse progressive · 35 min total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inclinaison table -->
+      <div class="incli-table">
+        <div class="incli-header">
+          <span>Temps</span>
+          <span>Inclin.</span>
+          <span>Vitesse</span>
+          <span>Cumul</span>
+        </div>
+        <div class="incli-row">
+          <span class="incli-time">3 min</span>
+          <span class="incli-incl">3</span>
+          <span class="incli-speed">v.5</span>
+          <span style="color:#444;font-size:11px">3 min</span>
+        </div>
+        <div class="incli-row">
+          <span class="incli-time">3 min</span>
+          <span class="incli-incl">8</span>
+          <span class="incli-speed">v.5</span>
+          <span style="color:#444;font-size:11px">6 min</span>
+        </div>
+        <div class="incli-row">
+          <span class="incli-time">3 min</span>
+          <span class="incli-incl">12</span>
+          <span class="incli-speed">v.5</span>
+          <span style="color:#444;font-size:11px">9 min</span>
+        </div>
+        <div class="incli-row">
+          <span class="incli-time">3 min</span>
+          <span class="incli-incl">15</span>
+          <span class="incli-speed">v.5</span>
+          <span style="color:#444;font-size:11px">12 min</span>
+        </div>
+        <div class="incli-row">
+          <span class="incli-time">3 min</span>
+          <span class="incli-incl">12</span>
+          <span class="incli-speed">v.5</span>
+          <span style="color:#444;font-size:11px">15 min</span>
+        </div>
+        <div class="incli-row">
+          <span class="incli-time">3 min</span>
+          <span class="incli-incl">10</span>
+          <span class="incli-speed">v.3</span>
+          <span style="color:#444;font-size:11px">18 min</span>
+        </div>
+        <div class="incli-row">
+          <span class="incli-time">3 min</span>
+          <span class="incli-incl">8</span>
+          <span class="incli-speed">v.3</span>
+          <span style="color:#444;font-size:11px">21 min</span>
+        </div>
+        <div class="incli-row">
+          <span class="incli-time">9 min</span>
+          <span class="incli-incl">5</span>
+          <span class="incli-speed">v.5</span>
+          <span style="color:#444;font-size:11px">30 min</span>
+        </div>
+        <div class="incli-row">
+          <span class="incli-time">5 min</span>
+          <span class="incli-incl">3</span>
+          <span class="incli-speed">v.5</span>
+          <span style="color:#ff6b3566;font-size:12px;font-weight:600">35 min ✓</span>
+        </div>
+      </div>
+
+      <div style="padding: 0 32px 28px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#555;font-style:italic;">
+          <span style="color:var(--accent-pdp)">✕</span> Circuit Brûle Graisse à la suite
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PDP SÉANCE 2 ── -->
+    <div class="session-card pdp">
+      <div class="session-header">
+        <div class="session-num">02</div>
+        <div class="session-info">
+          <div class="session-label">Séance</div>
+          <div class="session-title">FRACTIONNÉ<br>+ CIRCUIT</div>
+          <div class="session-warmup">
+            <div class="warmup-dot"></div>
+            <span>Échauffement — 5 min marche rapide, vitesse 6,5 · puis Circuit Brûle Graisse</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 1 -->
+      <div class="bloc-section">
+        <div class="bloc-title">Bloc 1 — Vitesse contrôlée · 18 min · Inclinaison 2</div>
+        <div class="bloc-card">
+          <div class="bloc-name">Fractionné Contrôlé</div>
+          <div class="bloc-intervals">
+            <div class="interval-chip">
+              <span class="interval-speed">6,5</span>
+              <span class="interval-dur">1 min</span>
+            </div>
+            <div style="display:flex;align-items:center;color:#333;font-size:18px;">⇄</div>
+            <div class="interval-chip">
+              <span class="interval-speed">10</span>
+              <span class="interval-dur">1 min</span>
+            </div>
+          </div>
+          <div class="bloc-note">🎯 Objectif : garder le rythme, ne pas craquer sur le sprint</div>
+        </div>
+
+        <!-- Bloc 2 -->
+        <div class="bloc-title" style="margin-top:20px;">Bloc 2 — Progression · Inclinaison 1</div>
+        <div class="bloc-card">
+          <div class="bloc-name">Fractionné Progressif</div>
+          <div class="bloc-intervals">
+            <div class="interval-chip">
+              <span class="interval-speed">6,5</span>
+              <span class="interval-dur">1 min</span>
+            </div>
+            <div style="display:flex;align-items:center;color:#333;font-size:14px;padding:0 4px;">→</div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Vitesses cibles (selon niveau)</span>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <div class="speed-opt">7,5</div>
+                <div class="speed-opt">8,5</div>
+                <div class="speed-opt">9,5</div>
+                <div class="speed-opt">10,5</div>
+                <div class="speed-opt">11,5</div>
+                <div class="speed-opt">12,5</div>
+              </div>
+            </div>
+          </div>
+          <div class="bloc-note">↩ Rétrogradation de -1 à la fin · Retour à 6,5</div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <div>Programme personnalisé · Perte de poids</div>
+    <div><span class="f-accent-pdp">5</span> clientes · PDP</div>
+  </footer>
+
+</div><!-- /panel-pdp -->
+
+
+<script>
+  function switchTab(tab, btn) {
+    // panels
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    // buttons
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active-masse', 'active-pdp');
+    });
+    btn.classList.add('active-' + tab);
+  }
+</script>
+</body>
+</html>
